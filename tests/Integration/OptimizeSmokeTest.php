@@ -14,7 +14,8 @@ final class OptimizeSmokeTest extends TestCase
         $bin = $root . '/vendor/bin/durin';
         $this->assertFileExists($bin);
 
-        $cacheBefore = $this->listFiles($root . '/var/cache');
+        $cacheDir = $root . '/var/cache';
+        $this->clearCacheArtifacts($cacheDir);
 
         $cwd = getcwd();
         chdir($root);
@@ -30,22 +31,24 @@ final class OptimizeSmokeTest extends TestCase
             }
         }
 
-        $cacheAfter = $this->listFiles($root . '/var/cache');
-        $this->assertGreaterThan(
-            count($cacheBefore),
-            count($cacheAfter),
-            'durin optimize should write artifacts under var/cache/'
-        );
+        $cacheAfter = $this->listFiles($cacheDir);
+        $this->assertNotEmpty($cacheAfter, 'durin optimize should write artifacts under var/cache/');
 
+        $cacheRoot = realpath($cacheDir) ?: $cacheDir;
         foreach ($cacheAfter as $file) {
-            $this->assertStringStartsWith(
-                realpath($root . '/var/cache') ?: ($root . '/var/cache'),
-                realpath($file) ?: $file
-            );
+            $resolved = realpath($file) ?: $file;
+            $this->assertStringStartsWith($cacheRoot, $resolved);
             $this->assertStringNotContainsString(
                 DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR,
                 $file
             );
+        }
+    }
+
+    private function clearCacheArtifacts(string $dir): void
+    {
+        foreach ($this->listFiles($dir) as $file) {
+            unlink($file);
         }
     }
 

@@ -17,6 +17,8 @@ final class GeneratorMutationTest extends TestCase
         $bin = $root . '/vendor/bin/durin';
         $this->assertFileExists($bin);
 
+        $manifestPath = $root . '/durin.yaml';
+        $manifestBackup = (string) file_get_contents($manifestPath);
         $vendorStamp = $this->vendorFingerprint($root);
 
         $cwd = getcwd();
@@ -40,24 +42,24 @@ final class GeneratorMutationTest extends TestCase
                 $ucCode
             );
             $this->assertSame(0, $ucCode, implode("\n", $ucOut));
+
+            $this->assertDirectoryExists($root . '/src/Modules/Billing');
+            $this->assertFileExists(
+                $root . '/src/Modules/Billing/Application/CreateInvoice/CreateInvoice.php'
+            );
+
+            $this->assertSame(
+                $vendorStamp,
+                $this->vendorFingerprint($root),
+                'vendor/ must not be mutated by generators'
+            );
         } finally {
+            $this->removeTree($root . '/src/Modules');
+            file_put_contents($manifestPath, $manifestBackup);
             if (is_string($cwd)) {
                 chdir($cwd);
             }
         }
-
-        $this->assertDirectoryExists($root . '/src/Modules/Billing');
-        $this->assertFileExists(
-            $root . '/src/Modules/Billing/Application/CreateInvoice/CreateInvoice.php'
-        );
-
-        $this->assertSame(
-            $vendorStamp,
-            $this->vendorFingerprint($root),
-            'vendor/ must not be mutated by generators'
-        );
-
-        $this->removeTree($root . '/src/Modules');
     }
 
     private function vendorFingerprint(string $root): string
