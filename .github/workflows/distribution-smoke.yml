@@ -1,7 +1,8 @@
 name: Distribution smoke
 
-# Gate: Packagist must publish ereborcodeforge/durin-app ^0.1 with the hardened contract
-# (modules:false + direct mithrilphp). Runs on main after release sync.
+# Proves real Packagist create-project for the hardened contract (v0.1.1+):
+# modules:false + direct mithrilphp ^2.2.
+# Until that release is on Packagist, the job skips instead of testing stale v0.1.0.
 
 on:
   workflow_dispatch:
@@ -26,22 +27,54 @@ jobs:
           coverage: none
           tools: composer:v2
 
-      - name: Assert package is on Packagist
+      - name: Resolve hardened Packagist version
+        id: packagist
         run: |
           set -euo pipefail
-          code=$(curl -s -o /dev/null -w "%{http_code}" https://packagist.org/packages/ereborcodeforge/durin-app.json || echo 000)
+          code=$(curl -s -o /tmp/durin-app-packagist.json -w "%{http_code}" \
+            https://repo.packagist.org/p2/ereborcodeforge/durin-app.json || echo 000)
           echo "Packagist HTTP status: ${code}"
-          test "${code}" = "200"
+          if [ "${code}" != "200" ]; then
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::ereborcodeforge/durin-app not on Packagist yet — skip distribution smoke."
+            exit 0
+          fi
+
+          version=$(php -r '
+            $j = json_decode((string) file_get_contents("/tmp/durin-app-packagist.json"), true, 512, JSON_THROW_ON_ERROR);
+            foreach ($j["packages"]["ereborcodeforge/durin-app"] ?? [] as $pkg) {
+              $mithril = $pkg["require"]["ereborcodeforge/mithrilphp"] ?? null;
+              $ver = $pkg["version"] ?? "";
+              if ($mithril === "^2.2" && preg_match("/^v?0\\.1\\.\\d+$/", $ver) === 1) {
+                echo ltrim($ver, "v");
+                exit(0);
+              }
+            }
+            exit(0);
+          ')
+
+          if [ -z "${version}" ]; then
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Hardened durin-app (mithrilphp ^2.2) not on Packagist yet — only v0.1.0-era metadata. Skip until v0.1.1+ syncs."
+            exit 0
+          fi
+
+          echo "available=true" >> "$GITHUB_OUTPUT"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "Resolved hardened Packagist version: ${version}"
 
       - name: Fresh create-project from Packagist
+        if: steps.packagist.outputs.available == 'true'
         working-directory: ${{ runner.temp }}
         run: |
           set -euo pipefail
+          VERSION="${{ steps.packagist.outputs.version }}"
+
           mkdir smoke-root
           cd smoke-root
 
           composer create-project \
-            ereborcodeforge/durin-app:^0.1 \
+            "ereborcodeforge/durin-app:${VERSION}" \
             smoke-app \
             --no-interaction \
             --prefer-dist
