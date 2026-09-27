@@ -24,7 +24,7 @@ vendor/bin/durin serve
 ## What this package is
 
 - A Composer `project` root owned by `App\`
-- Direct dependency on `ereborcodeforge/durins-forge` only
+- Direct dependencies: `ereborcodeforge/durins-forge` (framework + DX) and `ereborcodeforge/mithrilphp` (runtime API)
 - Minimal HTTP shape aligned with the Durin `minimal` preset
 - Ready for application code under `src/`
 

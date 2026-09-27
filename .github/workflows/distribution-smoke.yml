@@ -1,0 +1,75 @@
+name: Distribution smoke
+
+# Gate: Packagist must publish ereborcodeforge/durin-app ^0.1 with the hardened contract
+# (modules:false + direct mithrilphp). Runs on main after release sync.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  distribution-smoke:
+    name: Packagist create-project smoke
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: json, pdo, pdo_sqlite, sockets, msgpack
+          coverage: none
+          tools: composer:v2
+
+      - name: Assert package is on Packagist
+        run: |
+          set -euo pipefail
+          code=$(curl -s -o /dev/null -w "%{http_code}" https://packagist.org/packages/ereborcodeforge/durin-app.json || echo 000)
+          echo "Packagist HTTP status: ${code}"
+          test "${code}" = "200"
+
+      - name: Fresh create-project from Packagist
+        working-directory: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          mkdir smoke-root
+          cd smoke-root
+
+          composer create-project \
+            ereborcodeforge/durin-app:^0.1 \
+            smoke-app \
+            --no-interaction \
+            --prefer-dist
+
+          cd smoke-app
+
+          test -f composer.json
+          test -f durin.yaml
+          test -f src/Kernel.php
+          test -x vendor/bin/durin
+
+          php -r '
+            $json = json_decode(file_get_contents("composer.json"), true, 512, JSON_THROW_ON_ERROR);
+            if (!empty($json["repositories"])) {
+              fwrite(STDERR, "custom repositories must not exist\n");
+              exit(1);
+            }
+            $mithril = $json["require"]["ereborcodeforge/mithrilphp"] ?? null;
+            if ($mithril !== "^2.2") {
+              fwrite(STDERR, "expected mithrilphp ^2.2, got: " . var_export($mithril, true) . "\n");
+              exit(1);
+            }
+            echo "composer contract ok\n";
+          '
+
+          grep -q 'modules: false' durin.yaml
+
+          vendor/bin/durin doctor
+          vendor/bin/durin optimize
+
+          test -n "$(find var/cache -type f ! -name .gitkeep | head -1)"
