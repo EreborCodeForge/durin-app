@@ -47,7 +47,7 @@ Patch hardening after `v0.1.0` ships as `v0.1.1` (modules parity, Mithril direct
 
 ## Consumer smoke
 
-From an empty directory (after Packagist sync):
+From an empty directory (after Packagist sync of **v0.1.1+**):
 
 ```bash
 composer create-project ereborcodeforge/durin-app:^0.1 smoke-app
@@ -57,6 +57,6 @@ vendor/bin/durin doctor
 vendor/bin/durin optimize
 ```
 
-Assert the installed tree has `modules: false` and `"ereborcodeforge/mithrilphp": "^2.2"` in root `composer.json`.
+Assert the installed tree has `modules: false`, `"ereborcodeforge/mithrilphp": "^2.2"` in root `composer.json`, no custom `repositories`, and optimize writes under `var/cache/`.
 
-CI workflow: `.github/workflows/distribution-smoke.yml`.
+CI workflow: `.github/workflows/distribution-smoke.yml` (requires Packagist `>= 0.1.1`).
