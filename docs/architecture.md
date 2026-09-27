@@ -12,30 +12,35 @@
 
 The framework must not own `App\`.
 
+## Dependency graph
+
+```text
+durin-app
+├── durins-forge
+│   ├── durin-core
+│   ├── durin-presets
+│   ├── durin-architecture
+│   └── mazarbul
+│
+└── mithrilphp
+```
+
+| Package | Role |
+|---------|------|
+| `durins-forge` | framework composition + DX (`vendor/bin/durin`) |
+| `mithrilphp` | runtime API used directly by application bootstrap |
+
+Do **not** require `durin-core`, `durin-presets`, `durin-architecture`, or `mazarbul` directly unless application source imports them.
+
 ## Forge boundary
 
-Direct production dependency:
-
-```text
-durin-app → ereborcodeforge/durins-forge
-```
-
-Transitive stack (do not require directly in V1):
-
-```text
-durin-core
-durin-presets
-durin-architecture
-mithrilphp
-mazarbul
-```
-
-Application bootstrap may import only documented Forge public APIs for Kernel / path resolution:
+Application PHP under `src/`, `public/`, `config/`, and `routes/` may import only documented Forge public APIs:
 
 - `EreborCodeForge\Durin\Forge\Support\ApplicationPath`
 - `EreborCodeForge\Durin\Forge\Core\Http\HttpApplicationKernel`
+- `EreborCodeForge\Durin\Forge\Core\DiscoveryServiceProvider`
 
-`config` / `routes` stay aligned with the validated `minimal` preset bootstrap symbols.
+Everything else under `EreborCodeForge\Durin\Forge\` is internal. Bootstrap dependencies must be explainable as Forge public API or Mithril public runtime API.
 
 ## Kernel relationship
 

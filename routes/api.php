@@ -2,9 +2,13 @@
 
 declare(strict_types=1);
 
-use EreborCodeForge\Durin\Forge\Core\Http\Controllers\HealthCheckController;
+use Erebor\Mithril\Http\Response;
 use Erebor\Mithril\Router;
 
 return function (Router $router): void {
-    $router->get('/api/health', [HealthCheckController::class, 'check']);
+    $router->get('/api/health', static function (): Response {
+        return Response::json([
+            'status' => 'ok',
+        ]);
+    });
 };

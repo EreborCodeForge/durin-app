@@ -1,0 +1,108 @@
+name: Distribution smoke
+
+# Proves real Packagist create-project for the hardened contract (v0.1.1+):
+# modules:false + direct mithrilphp ^2.2.
+# Until that release is on Packagist, the job skips instead of testing stale v0.1.0.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  distribution-smoke:
+    name: Packagist create-project smoke
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: json, pdo, pdo_sqlite, sockets, msgpack
+          coverage: none
+          tools: composer:v2
+
+      - name: Resolve hardened Packagist version
+        id: packagist
+        run: |
+          set -euo pipefail
+          code=$(curl -s -o /tmp/durin-app-packagist.json -w "%{http_code}" \
+            https://repo.packagist.org/p2/ereborcodeforge/durin-app.json || echo 000)
+          echo "Packagist HTTP status: ${code}"
+          if [ "${code}" != "200" ]; then
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::ereborcodeforge/durin-app not on Packagist yet — skip distribution smoke."
+            exit 0
+          fi
+
+          version=$(php -r '
+            $j = json_decode((string) file_get_contents("/tmp/durin-app-packagist.json"), true, 512, JSON_THROW_ON_ERROR);
+            foreach ($j["packages"]["ereborcodeforge/durin-app"] ?? [] as $pkg) {
+              $mithril = $pkg["require"]["ereborcodeforge/mithrilphp"] ?? null;
+              $ver = $pkg["version"] ?? "";
+              if ($mithril === "^2.2" && preg_match("/^v?0\\.1\\.\\d+$/", $ver) === 1) {
+                echo ltrim($ver, "v");
+                exit(0);
+              }
+            }
+            exit(0);
+          ')
+
+          if [ -z "${version}" ]; then
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Hardened durin-app (mithrilphp ^2.2) not on Packagist yet — only v0.1.0-era metadata. Skip until v0.1.1+ syncs."
+            exit 0
+          fi
+
+          echo "available=true" >> "$GITHUB_OUTPUT"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "Resolved hardened Packagist version: ${version}"
+
+      - name: Fresh create-project from Packagist
+        if: steps.packagist.outputs.available == 'true'
+        working-directory: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.packagist.outputs.version }}"
+
+          mkdir smoke-root
+          cd smoke-root
+
+          composer create-project \
+            "ereborcodeforge/durin-app:${VERSION}" \
+            smoke-app \
+            --no-interaction \
+            --prefer-dist
+
+          cd smoke-app
+
+          test -f composer.json
+          test -f durin.yaml
+          test -f src/Kernel.php
+          test -x vendor/bin/durin
+
+          php -r '
+            $json = json_decode(file_get_contents("composer.json"), true, 512, JSON_THROW_ON_ERROR);
+            if (!empty($json["repositories"])) {
+              fwrite(STDERR, "custom repositories must not exist\n");
+              exit(1);
+            }
+            $mithril = $json["require"]["ereborcodeforge/mithrilphp"] ?? null;
+            if ($mithril !== "^2.2") {
+              fwrite(STDERR, "expected mithrilphp ^2.2, got: " . var_export($mithril, true) . "\n");
+              exit(1);
+            }
+            echo "composer contract ok\n";
+          '
+
+          grep -q 'modules: false' durin.yaml
+
+          vendor/bin/durin doctor
+          vendor/bin/durin optimize
+
+          test -n "$(find var/cache -type f ! -name .gitkeep | head -1)"
