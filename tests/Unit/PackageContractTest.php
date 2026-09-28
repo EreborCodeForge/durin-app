@@ -30,6 +30,7 @@ final class PackageContractTest extends TestCase
         $this->assertSame('ereborcodeforge/durin-app', $this->composer['name']);
         $this->assertSame('project', $this->composer['type']);
         $this->assertSame('^8.5', $this->composer['require']['php']);
+        $this->assertArrayNotHasKey('repositories', $this->composer);
         $this->assertArrayNotHasKey('bin', $this->composer);
     }
 
@@ -40,15 +41,6 @@ final class PackageContractTest extends TestCase
         $this->assertSame('^0.2.3', $require['ereborcodeforge/durins-forge']);
         $this->assertArrayHasKey('ereborcodeforge/mithrilphp', $require);
         $this->assertSame('^2.2', $require['ereborcodeforge/mithrilphp']);
-
-        if (isset($this->composer['repositories'])) {
-            foreach ($this->composer['repositories'] as $repository) {
-                $this->assertSame('vcs', $repository['type'] ?? null);
-                $this->assertStringContainsString('github.com/EreborCodeForge/', (string) ($repository['url'] ?? ''));
-            }
-        } else {
-            $this->assertArrayNotHasKey('repositories', $this->composer);
-        }
 
         foreach ([
             'ereborcodeforge/durin-core',
