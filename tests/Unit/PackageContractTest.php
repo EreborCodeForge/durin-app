@@ -37,7 +37,7 @@ final class PackageContractTest extends TestCase
     {
         $require = $this->composer['require'];
         $this->assertArrayHasKey('ereborcodeforge/durins-forge', $require);
-        $this->assertSame('^0.2.2', $require['ereborcodeforge/durins-forge']);
+        $this->assertSame('^0.2.3', $require['ereborcodeforge/durins-forge']);
         $this->assertArrayHasKey('ereborcodeforge/mithrilphp', $require);
         $this->assertSame('^2.2', $require['ereborcodeforge/mithrilphp']);
 

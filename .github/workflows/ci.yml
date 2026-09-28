@@ -63,6 +63,9 @@ jobs:
       - name: Run tests
         run: composer test
 
+      - name: Initialize default preset
+        run: vendor/bin/durin init --skip-runtime-install
+
       - name: Durin doctor
         run: vendor/bin/durin doctor
 

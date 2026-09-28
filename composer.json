@@ -25,7 +25,7 @@
         "php": "^8.5",
         "ext-msgpack": "*",
         "ext-sockets": "*",
-        "ereborcodeforge/durins-forge": "^0.2.2",
+        "ereborcodeforge/durins-forge": "^0.2.3",
         "ereborcodeforge/mithrilphp": "^2.2"
     },
     "require-dev": {
