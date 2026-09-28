@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit;
 
-use App\Kernel;
 use EreborCodeForge\Durin\Forge\Support\ApplicationPath;
-use Erebor\Mithril\Contracts\HttpApplication;
 use PHPUnit\Framework\TestCase;
 
 final class ExampleTest extends TestCase
@@ -17,11 +15,22 @@ final class ExampleTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_kernel_can_be_instantiated(): void
+    public function test_config_resolves_app_name_from_environment(): void
     {
-        $kernel = new Kernel();
-        $this->assertInstanceOf(HttpApplication::class, $kernel);
-        $this->assertInstanceOf(Kernel::class, $kernel);
+        $root = dirname(__DIR__, 2);
+        $previous = getenv('APP_NAME');
+        putenv('APP_NAME=example-app');
+        try {
+            /** @var array{name: string} $config */
+            $config = require $root . '/config/app.php';
+            $this->assertSame('example-app', $config['name']);
+        } finally {
+            if ($previous === false) {
+                putenv('APP_NAME');
+            } else {
+                putenv('APP_NAME=' . $previous);
+            }
+        }
     }
 
     public function test_application_root_resolves_to_app_not_vendor(): void

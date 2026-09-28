@@ -1,49 +1,45 @@
 # durin-app
 
-Official Composer application skeleton for the Durin ecosystem.
+Neutral Composer application root for the Durin ecosystem.
 
 ```bash
-composer create-project ereborcodeforge/durin-app my-app
+composer create-project ereborcodeforge/durin-app:^0.2 my-app
 cd my-app
 cp .env.example .env
+vendor/bin/durin init
+# or: vendor/bin/durin init --preset=service
 vendor/bin/durin doctor
 vendor/bin/durin dev
 ```
 
-## Runtime preparation
-
-When you need a local HTTP server and compiled caches:
+Canonical UX remains the global installer:
 
 ```bash
-vendor/bin/forge server:install
-vendor/bin/forge eregion:craft
-vendor/bin/durin optimize
-vendor/bin/durin serve
+durin new my-app --preset=service
 ```
 
 ## What this package is
 
 - A Composer `project` root owned by `App\`
-- Direct dependencies: `ereborcodeforge/durins-forge` (framework + DX) and `ereborcodeforge/mithrilphp` (runtime API)
-- Minimal HTTP shape aligned with the Durin `minimal` preset
-- Ready for application code under `src/`
+- Neutral bootstrap before preset initialization
+- Direct dependencies: `ereborcodeforge/durins-forge` and `ereborcodeforge/mithrilphp`
+- Environment-driven `APP_NAME` via `config/app.php`
 
 ## What this package is not
 
+- The `minimal` preset (or any preset)
 - A framework implementation
-- A second CLI or preset engine
-- Service / worker / modular package variants
+- A second CLI or preset catalog
 
-CLI, doctor, generators, and runtime orchestration come from `vendor/bin/durin` (Forge).
+Presets are applied by `vendor/bin/durin init` using `durin-presets` through Forge.
 
-## Structure
+## Structure (before init)
 
-- `src/Http`
-- `src/Application`
-- `routes`
-- `config`
-- `public`
-- `tests`
+- `composer.json` / `.env.example`
+- `config/app.php`
+- `public/index.php` (requires init)
+- `src/` (empty until preset)
+- `var/cache`, `var/runtime`
 
 ## Documentation
 

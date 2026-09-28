@@ -1,6 +1,6 @@
 application:
   name: durin-app
-  preset: minimal
+  preset: uninitialized
 
 runtime:
   engine: mithril
@@ -8,7 +8,7 @@ runtime:
   mode: http
 
 features:
-  http: true
+  http: false
   messaging: false
 
 architecture:
