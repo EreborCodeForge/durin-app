@@ -8,7 +8,7 @@
 | Type | `project` |
 | GitHub | https://github.com/EreborCodeForge/durin-app |
 | PHP | `^8.5` |
-| Direct deps | `ereborcodeforge/durins-forge:^0.2.3`, `ereborcodeforge/mithrilphp:^2.2` |
+| Direct deps | `ereborcodeforge/durins-forge:^0.4`, `ereborcodeforge/mithrilphp:^3.0` |
 
 No custom Composer `repositories` in the published `composer.json`.  
 No `extra.mithril` runtime pin before init.

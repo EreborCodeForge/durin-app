@@ -67,7 +67,7 @@ final class InitPresetSmokeTest extends TestCase
         $composer = json_decode((string) file_get_contents($root . '/composer.json'), true);
         $this->assertIsArray($composer);
         $this->assertSame('App\\Kernel', $composer['extra']['mithril']['kernel']);
-        $this->assertSame('v0.3.0', $composer['extra']['mithril']['eregion']);
+        $this->assertSame('v0.4.0', $composer['extra']['mithril']['eregion']);
 
         $env = (string) file_get_contents($root . '/.env.example');
         $this->assertStringContainsString('APP_URL=', $env);
