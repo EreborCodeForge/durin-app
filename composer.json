@@ -25,7 +25,7 @@
         "php": "^8.5",
         "ext-msgpack": "*",
         "ext-sockets": "*",
-        "ereborcodeforge/durins-forge": "^0.2.3",
+        "ereborcodeforge/durins-forge": "^0.3",
         "ereborcodeforge/mithrilphp": "^2.2"
     },
     "require-dev": {
@@ -39,13 +39,6 @@
     "autoload-dev": {
         "psr-4": {
             "App\\Tests\\": "tests/"
-        }
-    },
-    "extra": {
-        "mithril": {
-            "kernel": "App\\Kernel",
-            "eregion": "v0.3.0",
-            "eregion_repo": "EreborCodeForge/eregion"
         }
     },
     "scripts": {

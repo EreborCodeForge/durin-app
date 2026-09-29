@@ -63,8 +63,22 @@ jobs:
       - name: Run tests
         run: composer test
 
+      - name: Assert neutral root before init
+        run: |
+          grep -q 'preset: uninitialized' durin.yaml
+          grep -q 'state: unresolved' durin.yaml
+          test ! -f src/Kernel.php
+          test ! -d routes
+          test ! -d public
+
       - name: Initialize default preset
         run: vendor/bin/durin init --skip-runtime-install
+
+      - name: Assert HTTP runtime finalized
+        run: |
+          grep -q 'preset: minimal' durin.yaml
+          grep -q 'execution: mithril-http' durin.yaml
+          test -f src/Kernel.php
 
       - name: Durin doctor
         run: vendor/bin/durin doctor

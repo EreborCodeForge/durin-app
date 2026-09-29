@@ -38,7 +38,7 @@ final class PackageContractTest extends TestCase
     {
         $require = $this->composer['require'];
         $this->assertArrayHasKey('ereborcodeforge/durins-forge', $require);
-        $this->assertSame('^0.2.3', $require['ereborcodeforge/durins-forge']);
+        $this->assertSame('^0.3', $require['ereborcodeforge/durins-forge']);
         $this->assertArrayHasKey('ereborcodeforge/mithrilphp', $require);
         $this->assertSame('^2.2', $require['ereborcodeforge/mithrilphp']);
 
@@ -64,12 +64,9 @@ final class PackageContractTest extends TestCase
         );
     }
 
-    public function test_mithril_extra_metadata(): void
+    public function test_has_no_runtime_mithril_extra_before_init(): void
     {
-        $mithril = $this->composer['extra']['mithril'];
-        $this->assertSame('App\\Kernel', $mithril['kernel']);
-        $this->assertSame('v0.3.0', $mithril['eregion']);
-        $this->assertSame('EreborCodeForge/eregion', $mithril['eregion_repo']);
+        $this->assertArrayNotHasKey('extra', $this->composer);
     }
 
     public function test_vendor_bin_durin_exists_after_install(): void

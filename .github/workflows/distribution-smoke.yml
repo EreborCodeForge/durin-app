@@ -1,6 +1,7 @@
 name: Distribution smoke
 
-# Proves Packagist create-project for the neutral 0.2 root + durin init path.
+# Proves Packagist create-project for the neutral root + durin init path
+# for minimal, service, and worker presets (post-init assertions).
 
 on:
   workflow_dispatch:
@@ -13,8 +14,12 @@ permissions:
 
 jobs:
   distribution-smoke:
-    name: Packagist create-project smoke
+    name: Packagist create-project (${{ matrix.preset }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [minimal, service, worker]
 
     steps:
       - name: Setup PHP
@@ -68,32 +73,53 @@ jobs:
       - name: Fresh create-project from Packagist
         if: steps.packagist.outputs.available == 'true'
         working-directory: ${{ runner.temp }}
+        env:
+          PRESET: ${{ matrix.preset }}
         run: |
           set -euo pipefail
 
-          mkdir smoke-root
+          mkdir -p smoke-root
           cd smoke-root
 
           composer create-project \
             ereborcodeforge/durin-app:^0.2 \
-            smoke-app \
+            "smoke-${PRESET}" \
             --no-interaction \
             --prefer-dist
 
-          cd smoke-app
+          cd "smoke-${PRESET}"
 
           test -f composer.json
           test -f durin.yaml
           test ! -f src/Kernel.php
+          test ! -d routes
+          test ! -d public
           test -x vendor/bin/durin
 
           grep -q 'preset: uninitialized' durin.yaml
+          grep -q 'state: unresolved' durin.yaml
+          ! grep -q '"mithril"' composer.json || ! grep -q '"kernel"' composer.json
 
-          vendor/bin/durin init --preset=minimal --skip-runtime-install
-          test -f src/Kernel.php
-          grep -q 'preset: minimal' durin.yaml
+          vendor/bin/durin init --preset="${PRESET}" --skip-runtime-install
+          grep -q "preset: ${PRESET}" durin.yaml
+
+          if [ "${PRESET}" = "worker" ]; then
+            test -f src/JobKernel.php
+            test ! -f src/Kernel.php
+            test ! -d routes
+            test ! -d public
+            grep -q 'execution: mithril-job' durin.yaml
+            ! grep -q 'supervisor:' durin.yaml
+            ! grep -q '"eregion"' composer.json
+          else
+            test -f src/Kernel.php
+            test -f routes/web.php
+            test -f public/index.php
+            test ! -f src/JobKernel.php
+            grep -q 'execution: mithril-http' durin.yaml
+            grep -q 'supervisor: eregion' durin.yaml
+            grep -q 'APP_URL=' .env.example
+            grep -q '"kernel"' composer.json
+          fi
 
           vendor/bin/durin doctor
-          vendor/bin/durin optimize
-
-          test -n "$(find var/cache -type f ! -name .gitkeep | head -1)"

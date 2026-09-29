@@ -3,9 +3,7 @@ application:
   preset: uninitialized
 
 runtime:
-  engine: mithril
-  server: eregion
-  mode: http
+  state: unresolved
 
 features:
   http: false

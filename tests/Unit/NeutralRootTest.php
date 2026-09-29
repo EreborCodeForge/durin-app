@@ -18,17 +18,28 @@ final class NeutralRootTest extends TestCase
         $this->assertStringNotContainsString('preset: minimal', $yaml);
     }
 
+    public function test_manifest_is_runtime_unresolved(): void
+    {
+        $yaml = (string) file_get_contents(dirname(__DIR__, 2) . '/durin.yaml');
+        $this->assertStringContainsString('state: unresolved', $yaml);
+        $this->assertStringNotContainsString('engine:', $yaml);
+        $this->assertStringNotContainsString('server:', $yaml);
+        $this->assertStringNotContainsString('execution:', $yaml);
+        $this->assertStringNotContainsString('mode: http', $yaml);
+        $this->assertStringContainsString('http: false', $yaml);
+        $this->assertStringContainsString('messaging: false', $yaml);
+    }
+
     public function test_has_no_preset_specific_structure(): void
     {
         $root = dirname(__DIR__, 2);
         $this->assertFileDoesNotExist($root . '/src/Kernel.php');
+        $this->assertFileDoesNotExist($root . '/src/JobKernel.php');
         $this->assertDirectoryDoesNotExist($root . '/src/Http');
         $this->assertDirectoryDoesNotExist($root . '/src/Domain');
         $this->assertDirectoryDoesNotExist($root . '/src/Jobs');
-
-        $api = (string) file_get_contents($root . '/routes/api.php');
-        $this->assertStringNotContainsString('/api/health', $api);
-        $this->assertStringContainsString('durin init', $api);
+        $this->assertDirectoryDoesNotExist($root . '/routes');
+        $this->assertDirectoryDoesNotExist($root . '/public');
     }
 
     public function test_keeps_universal_bootstrap_pieces(): void
@@ -37,20 +48,18 @@ final class NeutralRootTest extends TestCase
         $this->assertFileExists($root . '/composer.json');
         $this->assertFileExists($root . '/config/app.php');
         $this->assertFileExists($root . '/.env.example');
-        $this->assertFileExists($root . '/public/index.php');
         $this->assertDirectoryExists($root . '/var/cache');
         $this->assertDirectoryExists($root . '/var/runtime');
+        $this->assertDirectoryExists($root . '/storage');
 
         $config = (string) file_get_contents($root . '/config/app.php');
         $this->assertStringContainsString("getenv('APP_NAME')", $config);
         $this->assertStringContainsString('DiscoveryServiceProvider', $config);
-    }
 
-    public function test_public_index_requires_init(): void
-    {
-        $index = (string) file_get_contents(dirname(__DIR__, 2) . '/public/index.php');
-        $this->assertStringContainsString('durin init', $index);
-        $this->assertStringNotContainsString('new Kernel()', $index);
+        $env = (string) file_get_contents($root . '/.env.example');
+        $this->assertStringContainsString('APP_NAME=', $env);
+        $this->assertStringNotContainsString('APP_URL=', $env);
+        $this->assertStringNotContainsString('APP_PORT=', $env);
     }
 
     public function test_readme_documents_create_project_and_init(): void
@@ -61,5 +70,6 @@ final class NeutralRootTest extends TestCase
             $readme
         );
         $this->assertStringContainsString('vendor/bin/durin init', $readme);
+        $this->assertStringContainsString('runtime.state: unresolved', $readme);
     }
 }

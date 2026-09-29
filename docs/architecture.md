@@ -2,15 +2,15 @@
 
 ## Application ownership
 
-`durin-app` is the canonical Composer **project** skeleton. The consumer owns:
+`durin-app` is the canonical Composer **project** skeleton. Before `durin init`, the consumer owns only a **neutral** root:
 
 - application root
-- `App\` namespace
-- `App\Kernel`
-- `config/`, `routes/`, `public/`
-- `durin.yaml` and `.env`
+- `App\` namespace (empty `src/`)
+- `config/app.php`
+- `durin.yaml` with `preset: uninitialized` and `runtime.state: unresolved`
+- `.env` / `.env.example` without HTTP-specific keys
 
-The framework must not own `App\`.
+After init, Forge/presets add the chosen shape (`App\Kernel` + `routes/` + `public/` for HTTP, or `App\JobKernel` for worker). The framework must not own `App\`.
 
 ## Dependency graph
 
@@ -28,51 +28,39 @@ durin-app
 | Package | Role |
 |---------|------|
 | `durins-forge` | framework composition + DX (`vendor/bin/durin`) |
-| `mithrilphp` | runtime API used directly by application bootstrap |
+| `mithrilphp` | runtime API used by application bootstrap **after** init |
 
 Do **not** require `durin-core`, `durin-presets`, `durin-architecture`, or `mazarbul` directly unless application source imports them.
 
+The neutral root does **not** pin `extra.mithril` (kernel / Eregion). Init merges those from the preset plan + `RuntimePlan`.
+
 ## Forge boundary
 
-Application PHP under `src/`, `public/`, `config/`, and `routes/` may import only documented Forge public APIs:
+Application PHP under `src/`, `public/`, `config/`, and `routes/` (once created) may import only documented Forge public APIs:
 
 - `EreborCodeForge\Durin\Forge\Support\ApplicationPath`
 - `EreborCodeForge\Durin\Forge\Core\Http\HttpApplicationKernel`
 - `EreborCodeForge\Durin\Forge\Core\DiscoveryServiceProvider`
 
-Everything else under `EreborCodeForge\Durin\Forge\` is internal. Bootstrap dependencies must be explainable as Forge public API or Mithril public runtime API.
+Everything else under `EreborCodeForge\Durin\Forge\` is internal.
 
-## Kernel relationship
-
-```text
-App\Kernel
-    ↓ composes
-HttpApplicationKernel (Forge)
-    ↓
-Mithril HttpApplication contract
-```
-
-`App\Kernel` stays thin: application providers, middleware, and hooks only. No generic container, route compiler, Eregion protocol, or doctor logic.
-
-## Runtime relationship
+## Init flow
 
 ```text
-Application (this repo)
-    ↓
-MithrilPHP Worker (public/index.php)
-    ↓
-Eregion
+runtime.state=unresolved
+        ↓
+durin init
+        ↓
+Preset + RuntimeResolver → RuntimePlan
+        ↓
+Scaffold + Composer merge + Env merge + residual cleanup
+        ↓
+Manifest finalize (execution + optional supervisor)
 ```
 
-`public/index.php` sets `ApplicationPath::setRoot()` from the application root (never from vendor paths) and runs as an Eregion worker under CLI.
+HTTP (`mithril-http` + supervisor `eregion`): Kernel, routes, public.  
+Worker (`mithril-job`, no supervisor): JobKernel, no routes/public/Eregion.
 
 ## Preset parity
 
-Structural intent for V1 comes from `durin-presets` **minimal**:
-
-| Concern | Owner |
-|---------|--------|
-| Preset / scaffold policy | `durin-presets` |
-| Published application artifact | `durin-app` |
-
-When minimal bootstrap changes, update presets first, then refresh this skeleton and re-run parity + consumer tests.
+Structural intent comes from `durin-presets`. When bootstrap templates change, update presets first, then refresh this skeleton and re-run init + distribution smokes for `minimal`, `service`, and `worker`.
