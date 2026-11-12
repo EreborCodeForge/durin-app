@@ -11,7 +11,7 @@ The Durin package chain (`durin-core`, `durin-presets`, `durin-architecture`, `d
 ## Decision
 
 1. `ereborcodeforge/durin-app` is a Composer **project** skeleton, not a library.
-2. It depends directly on `ereborcodeforge/durins-forge` and `ereborcodeforge/mithrilphp`.
+2. It depends directly on `ereborcodeforge/durins-forge` only. Mithril, core, presets, and architecture stay transitive.
 3. It does **not** depend directly on `durin-core`, `durin-presets`, `durin-architecture`, or `mazarbul`.
 4. `App\` is application-owned; framework code stays under Forge / Mithril namespaces.
 5. Application Forge imports are limited to the Forge `docs/public-api.md` whitelist.

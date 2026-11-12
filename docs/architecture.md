@@ -16,21 +16,20 @@ After init, Forge/presets add the chosen shape (`App\Kernel` + `routes/` + `publ
 
 ```text
 durin-app
-├── durins-forge
-│   ├── durin-core
-│   ├── durin-presets
-│   ├── durin-architecture
-│   └── mazarbul
-│
-└── mithrilphp
+└── durins-forge
+    ├── durin-core
+    ├── durin-presets
+    ├── durin-architecture
+    ├── mazarbul
+    └── mithrilphp
 ```
 
 | Package | Role |
 |---------|------|
 | `durins-forge` | framework composition + DX (`vendor/bin/durin`) |
-| `mithrilphp` | runtime API used by application bootstrap **after** init |
+| `mithrilphp` | transitive runtime used by Forge after init |
 
-Do **not** require `durin-core`, `durin-presets`, `durin-architecture`, or `mazarbul` directly unless application source imports them.
+Do **not** require `durin-core`, `durin-presets`, `durin-architecture`, `mazarbul`, or `mithrilphp` directly unless application source imports them.
 
 The neutral root does **not** pin `extra.mithril` (kernel / Eregion). Init merges those from the preset plan + `RuntimePlan`.
 

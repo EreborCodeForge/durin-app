@@ -3,7 +3,7 @@
 Neutral Composer application root for the Durin ecosystem.
 
 ```bash
-composer create-project ereborcodeforge/durin-app:^0.2 my-app
+composer create-project ereborcodeforge/durin-app:^0.4 my-app
 cd my-app
 cp .env.example .env
 vendor/bin/durin init
@@ -23,7 +23,7 @@ durin new my-app --preset=service
 
 - A Composer `project` root owned by `App\`
 - Neutral bootstrap before preset initialization (`runtime.state: unresolved`)
-- Direct dependencies: `ereborcodeforge/durins-forge` and `ereborcodeforge/mithrilphp`
+- Direct dependency: `ereborcodeforge/durins-forge` (Mithril arrives transitively)
 - Environment-driven `APP_NAME` via `config/app.php`
 - No Kernel, JobKernel, routes, or public entry point until `durin init`
 

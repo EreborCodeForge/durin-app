@@ -34,19 +34,18 @@ final class PackageContractTest extends TestCase
         $this->assertArrayNotHasKey('bin', $this->composer);
     }
 
-    public function test_requires_forge_and_mithril_only_among_framework_packages(): void
+    public function test_requires_forge_only_among_framework_packages(): void
     {
         $require = $this->composer['require'];
         $this->assertArrayHasKey('ereborcodeforge/durins-forge', $require);
         $this->assertSame('^0.4', $require['ereborcodeforge/durins-forge']);
-        $this->assertArrayHasKey('ereborcodeforge/mithrilphp', $require);
-        $this->assertSame('^3.0', $require['ereborcodeforge/mithrilphp']);
 
         foreach ([
             'ereborcodeforge/durin-core',
             'ereborcodeforge/durin-presets',
             'ereborcodeforge/durin-architecture',
             'ereborcodeforge/mazarbul',
+            'ereborcodeforge/mithrilphp',
         ] as $forbidden) {
             $this->assertArrayNotHasKey($forbidden, $require);
         }
