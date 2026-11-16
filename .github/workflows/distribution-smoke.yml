@@ -38,9 +38,8 @@ jobs:
             https://repo.packagist.org/p2/ereborcodeforge/durin-app.json || echo 000)
           echo "Packagist HTTP status: ${code}"
           if [ "${code}" != "200" ]; then
-            echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::ereborcodeforge/durin-app not on Packagist yet — skip distribution smoke."
-            exit 0
+            echo "::error::ereborcodeforge/durin-app is not on Packagist (HTTP ${code})."
+            exit 1
           fi
 
           version=$(php -r '
@@ -61,9 +60,8 @@ jobs:
           ')
 
           if [ -z "${version}" ]; then
-            echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Packagist has no durin-app >= 0.4.0 yet — skip until sync."
-            exit 0
+            echo "::error::Packagist has no ereborcodeforge/durin-app >= 0.4.0."
+            exit 1
           fi
 
           echo "available=true" >> "$GITHUB_OUTPUT"
