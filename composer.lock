@@ -140,16 +140,16 @@
         },
         {
             "name": "ereborcodeforge/durins-forge",
-            "version": "v0.4.5",
+            "version": "v0.4.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EreborCodeForge/durins-forge.git",
-                "reference": "f3df4598f0723dd379d9d30168af4f8cb60d561a"
+                "reference": "5dde364588ae586d212dfc47595f6eff8d315578"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EreborCodeForge/durins-forge/zipball/f3df4598f0723dd379d9d30168af4f8cb60d561a",
-                "reference": "f3df4598f0723dd379d9d30168af4f8cb60d561a",
+                "url": "https://api.github.com/repos/EreborCodeForge/durins-forge/zipball/5dde364588ae586d212dfc47595f6eff8d315578",
+                "reference": "5dde364588ae586d212dfc47595f6eff8d315578",
                 "shasum": ""
             },
             "require": {
@@ -205,7 +205,7 @@
                 "issues": "https://github.com/EreborCodeForge/durins-forge/issues",
                 "source": "https://github.com/EreborCodeForge/durins-forge"
             },
-            "time": "2026-11-16T17:27:18+00:00"
+            "time": "2026-11-16T20:52:23+00:00"
         },
         {
             "name": "ereborcodeforge/mazarbul",
@@ -269,16 +269,16 @@
         },
         {
             "name": "ereborcodeforge/mithrilphp",
-            "version": "v3.2.0",
+            "version": "v3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EreborCodeForge/mithrilphp.git",
-                "reference": "755763000f15d340cb4df7e4a715103bc3b83afa"
+                "reference": "f0e6eccd0791a38c1b61c3276d2cef68d7aa3767"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EreborCodeForge/mithrilphp/zipball/755763000f15d340cb4df7e4a715103bc3b83afa",
-                "reference": "755763000f15d340cb4df7e4a715103bc3b83afa",
+                "url": "https://api.github.com/repos/EreborCodeForge/mithrilphp/zipball/f0e6eccd0791a38c1b61c3276d2cef68d7aa3767",
+                "reference": "f0e6eccd0791a38c1b61c3276d2cef68d7aa3767",
                 "shasum": ""
             },
             "require": {
@@ -333,7 +333,7 @@
                 "issues": "https://github.com/EreborCodeForge/mithrilphp/issues",
                 "source": "https://github.com/EreborCodeForge/mithrilphp"
             },
-            "time": "2026-11-16T17:10:25+00:00"
+            "time": "2026-11-16T20:52:06+00:00"
         }
     ],
     "packages-dev": [
