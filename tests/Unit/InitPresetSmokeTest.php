@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit;
 
+use EreborCodeForge\Durin\Core\Contract\ProjectSelection;
 use EreborCodeForge\Durin\Core\Mutation\ScaffoldWriter;
 use EreborCodeForge\Durin\Forge\Tooling\Init\ApplicationInitializer;
 use EreborCodeForge\Durin\Forge\Tooling\Progress\InitProgressReporter;
@@ -120,7 +121,44 @@ final class InitPresetSmokeTest extends TestCase
         return [
             ['minimal', 'src/Http/.gitkeep'],
             ['service', 'src/Domain/.gitkeep'],
+            ['producer', 'src/Infrastructure/Messaging/UnconfiguredPublisher.php'],
         ];
+    }
+
+    public function test_consumer_init_stays_a_job_without_http_files(): void
+    {
+        $source = dirname(__DIR__, 2);
+        $root = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'durin_app_init_consumer_' . uniqid('', true);
+        $this->roots[] = $root;
+        $this->mirrorNeutralRoot($source, $root);
+
+        ob_start();
+        $result = $this->initializer()->initialize(
+            $root,
+            'consumer',
+            new InitProgressReporter(jsonl: true),
+            skipRuntimeInstall: true,
+        );
+        ob_end_clean();
+
+        $this->assertSame('consumer', $result['preset']);
+        $this->assertSame('mithril-job', $result['runtime']->executionRuntime);
+        $this->assertNull($result['runtime']->supervisor);
+        $this->assertFileExists($root . '/src/JobKernel.php');
+        $this->assertFileExists($root . '/src/Application/Handlers/ExampleHandler.php');
+        $this->assertFileDoesNotExist($root . '/src/Kernel.php');
+        $this->assertDirectoryDoesNotExist($root . '/public');
+        $this->assertDirectoryDoesNotExist($root . '/routes');
+
+        $yaml = (string) file_get_contents($root . '/durin.yaml');
+        $this->assertStringContainsString('preset: consumer', $yaml);
+        $this->assertStringContainsString('consumer: true', $yaml);
+        $this->assertStringNotContainsString('supervisor:', $yaml);
+
+        $composer = json_decode((string) file_get_contents($root . '/composer.json'), true);
+        $this->assertIsArray($composer);
+        $this->assertArrayNotHasKey('repositories', $composer);
+        $this->assertSame('App\\JobKernel', $composer['extra']['mithril']['job_kernel']);
     }
 
     private function initializer(): ApplicationInitializer
@@ -145,6 +183,8 @@ final class InitPresetSmokeTest extends TestCase
                         string $applicationRoot,
                         bool $force = false,
                         ?RuntimePlan $plan = null,
+                        ?ProjectSelection $selection = null,
+                        bool $preserveExisting = false,
                     ): array {
                         return [];
                     }
