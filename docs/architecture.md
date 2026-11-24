@@ -26,7 +26,7 @@ durin-app
 
 | Package | Role |
 |---------|------|
-| `durins-forge` | framework composition + DX (`vendor/bin/durin`) |
+| `durins-forge` | framework composition + DX (`durins-forge`, or `vendor/bin/durins-forge` in CI) |
 | `mithrilphp` | transitive runtime used by Forge after init |
 
 Do **not** require `durin-core`, `durin-presets`, `durin-architecture`, `mazarbul`, or `mithrilphp` directly unless application source imports them.

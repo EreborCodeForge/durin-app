@@ -70,9 +70,11 @@ jobs:
           test ! -f src/Kernel.php
           test ! -d routes
           test ! -d public
+          test -x vendor/bin/durins-forge
+          test -x vendor/bin/durin
 
       - name: Initialize default preset
-        run: vendor/bin/durin init --skip-runtime-install
+        run: vendor/bin/durins-forge init --skip-runtime-install
 
       - name: Assert HTTP runtime finalized
         run: |
@@ -81,9 +83,9 @@ jobs:
           test -f src/Kernel.php
 
       - name: Durin doctor
-        run: vendor/bin/durin doctor
+        run: vendor/bin/durins-forge doctor
 
       - name: Optimize smoke
         run: |
-          vendor/bin/durin optimize
+          vendor/bin/durins-forge optimize
           test -n "$(find var/cache -type f ! -name .gitkeep | head -1)"

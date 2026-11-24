@@ -18,11 +18,11 @@ The Durin package chain (`durin-core`, `durin-presets`, `durin-architecture`, `d
 6. From `0.2.x`, the published artifact is a **neutral** root (`preset: uninitialized` until `durin init`).
 7. Preset / scaffold policy remains in `durin-presets`; Forge applies it via `durin init`.
 8. No installer logic and no per-preset package variants (`durin-app-service`, …).
-9. CLI remains `vendor/bin/durin` from Forge — no local `bin/durin`.
+9. CLI is Forge's `vendor/bin/durins-forge`. There is no `bin/durin` in this package. `vendor/bin/durin` remains a Forge compatibility alias.
 10. Installer may set `APP_NAME` only; Forge/preset owns `durin.yaml`, Kernel, routes, and layers.
 
 ## Consequences
 
-- `composer create-project ereborcodeforge/durin-app:^0.2 my-app && vendor/bin/durin init` is the low-level onboarding path.
+- `composer create-project ereborcodeforge/durin-app:^0.2 my-app && vendor/bin/durins-forge init` is the low-level onboarding path.
 - Global `durin new` (installer) remains the canonical UX.
 - Parity CI tracks neutral-root invariants, not `minimal` identity.

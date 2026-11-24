@@ -6,11 +6,12 @@ Neutral Composer application root for the Durin ecosystem.
 composer create-project ereborcodeforge/durin-app:^0.4 my-app
 cd my-app
 cp .env.example .env
-vendor/bin/durin init
-# or: vendor/bin/durin init --preset=service
-# or: vendor/bin/durin init --preset=worker
-vendor/bin/durin doctor
-vendor/bin/durin run
+durins-forge init
+# or: durins-forge init --preset=service
+# or: durins-forge init --preset=worker
+durins-forge doctor
+durins-forge run
+# CI / container: vendor/bin/durins-forge init
 ```
 
 Canonical UX remains the global installer:
@@ -34,7 +35,7 @@ durin new my-app --preset=service
 - A second CLI or preset catalog
 - A concrete runtime choice (HTTP/Eregion/job)
 
-Presets are applied by `vendor/bin/durin init` using `durin-presets` through Forge. Forge merges Composer/`.env.example` and finalizes runtime from a `RuntimePlan`.
+Presets are applied by `durins-forge init` using `durin-presets` through Forge. Forge merges Composer/`.env.example` and finalizes runtime from a `RuntimePlan`. In CI, call `vendor/bin/durins-forge` so the pipeline does not depend on a global Installer. `vendor/bin/durin` remains a compatibility alias.
 
 ## Structure (before init)
 

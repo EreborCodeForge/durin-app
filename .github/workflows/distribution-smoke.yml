@@ -92,6 +92,7 @@ jobs:
           test ! -f src/Kernel.php
           test ! -d routes
           test ! -d public
+          test -x vendor/bin/durins-forge
           test -x vendor/bin/durin
 
           grep -q 'preset: uninitialized' durin.yaml
@@ -114,7 +115,7 @@ jobs:
             }
           '
 
-          vendor/bin/durin init --preset="${PRESET}" --skip-runtime-install
+          vendor/bin/durins-forge init --preset="${PRESET}" --skip-runtime-install
           grep -q "preset: ${PRESET}" durin.yaml
 
           if [ "${PRESET}" = "worker" ]; then
@@ -136,4 +137,4 @@ jobs:
             grep -q '"kernel"' composer.json
           fi
 
-          vendor/bin/durin doctor
+          vendor/bin/durins-forge doctor
