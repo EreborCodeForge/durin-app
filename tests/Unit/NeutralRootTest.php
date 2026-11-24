@@ -69,7 +69,7 @@ final class NeutralRootTest extends TestCase
             'composer create-project ereborcodeforge/durin-app',
             $readme
         );
-        $this->assertStringContainsString('vendor/bin/durin init', $readme);
+        $this->assertStringContainsString('vendor/bin/durins-forge init', $readme);
         $this->assertStringContainsString('runtime.state: unresolved', $readme);
     }
 }
